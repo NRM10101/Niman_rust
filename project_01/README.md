@@ -28,11 +28,11 @@ x = 20; // Compile-time error: cannot assign twice to an immutable variable
 
 ## 4. What are constants in Rust, and how are they different from immutable variables?
 
-## Constants in Rust
+### Constants in Rust
 
-Constants are fixed values that are known at compile time and do not change throughout the program. They are declared with the `const` keyword and must have an explicit type annotation.
+- Constants are fixed values that are known at compile time and do not change throughout the program. They are declared with the `const` keyword and must have an explicit type annotation.
 
-### Key Features of Constants
+#### Key Features of Constants
 
 - Declared using `const`.
 - Must include a **type annotation** (e.g., `const PI: f64 = 3.14159;`).
@@ -41,11 +41,11 @@ Constants are fixed values that are known at compile time and do not change thro
 - Always immutable and cannot refer to runtime values or non-constant values.
 - Follow naming convention: **SCREAMING_SNAKE_CASE**.
 
-## Immutable Variables in Rust
+### Immutable Variables in Rust
 
-Immutable variables are declared using the `let` keyword without the `mut` modifier. These variables cannot be reassigned once a value is bound to them but are more flexible than constants.
+- Immutable variables are declared using the `let` keyword without the `mut` modifier. These variables cannot be reassigned once a value is bound to them but are more flexible than constants.
 
-### Key Features of Immutable Variables
+#### Key Features of Immutable Variables
 
 - Declared using `let` (without `mut`).
 - Type annotations are **optional** (e.g., `let x = 10;`).
@@ -166,7 +166,7 @@ In Rust, variables can be stored in either the stack or the heap, depending on t
 - **Stack**: Fast, fixed-size data like primitives.
 - **Heap**: Dynamically allocated, slower, and used for large or growing data like `String`.
 
-# Comparison Table: Stack vs. Heap Variables in Rust
+### Comparison Table: Stack vs. Heap Variables in Rust
 
 | **Feature**              | **Stack Variables**                      | **Heap Variables**                          |
 | ------------------------ | ---------------------------------------- | ------------------------------------------- |
@@ -183,25 +183,78 @@ In Rust, variables can be stored in either the stack or the heap, depending on t
 
 Closures in Rust are anonymous functions that can capture variables from their surrounding environment. They are flexible and powerful but follow specific rules when interacting with variables.
 
-### Summary Table: How Variables Interact with Closures in Rust
+### **1. Immutable Borrow (`&T`)**
+- **How It Works**: Closure borrows the variable immutably.
+- **Example**:
+  ```rust
+  let c = || println!("{}", x);
+  ```
+- **When Used**: When reading the variable without modifying it.
 
-| **Capture Method**       | **How It Works**                                   | **When Used**                                 | **Example**                              |
-|--------------------------|---------------------------------------------------|----------------------------------------------|------------------------------------------|
-| Immutable Borrow (`&T`)  | Closure borrows the variable immutably.            | When reading the variable without modifying. | `let c = || println!("{}", x);`          |
-| Mutable Borrow (`&mut T`)| Closure borrows the variable mutably.              | When modifying the variable in place.        | `let c = || x += 1;`                     |
-| By Value (`T`)           | Closure takes ownership of the variable.           | When moving or consuming the variable.       | `let c = || println!("{}", x);`          |
-| Move Closure (`move`)    | Closure explicitly takes ownership of variables.   | When transferring data to threads or tasks.  | `let c = move || println!("{}", x);`     |
+### **2. Mutable Borrow (`&mut T`)**
+- **How It Works**: Closure borrows the variable mutably.
+- **Example**:
+  ```rust
+  let c = || x += 1;
+  ```
+- **When Used**: When modifying the variable in place.
 
+### **3. By Value (`T`)**
+- **How It Works**: Closure takes ownership of the variable.
+- **Example**:
+  ```rust
+  let c = || println!("{}", x);
+  ```
+- **When Used**: When moving or consuming the variable.
 
-Closures can **capture** variables by reference, mutable reference, or by value, depending on the usage.
+### **4. Move Closure (`move`)**
+- **How It Works**: Closure explicitly takes ownership of variables.
+- **Example**:
+  ```rust
+  let c = move || println!("{}", x);
+  ```
+- **When Used**: When transferring data to threads or tasks.
+
+### Key Points:
+1. **Inference**: Rust automatically determines how to capture variables (by reference, mutable reference, or value) based on their usage in the closure.
+2. **Move Semantics**: Using the `move` keyword forces the closure to take ownership of the variables it captures. This is commonly used for transferring ownership to threads or asynchronous tasks.
+3. **Ownership Rules**: Closures follow Rust's borrowing and ownership rules strictly, ensuring safety.
+
+### Example: Capturing Variables in Closures
+
+```rust
+fn main() {
+    let x = 10;
+
+    // Immutable Borrow
+    let print_x = || println!("x: {}", x);
+    print_x(); // x is borrowed immutably
+
+    // Mutable Borrow
+    let mut y = 20;
+    let mut increment_y = || y += 1;
+    increment_y(); // y is modified within the closure
+    println!("y: {}", y);
+
+    // By Value
+    let s = String::from("hello");
+    let consume_s = || println!("s: {}", s); // s is moved into the closure
+    consume_s(); // s is consumed and no longer accessible
+
+    // Move Closure
+    let z = 5;
+    let move_z = move || println!("z: {}", z); // z is moved into the closure
+    move_z();
+}
+```
 
 ## 15. What are aliases and how do they work with variables?
 
 Aliases in Rust are references (`&` or `&mut`) to variables, allowing multiple ways to access the same value. They follow Rust's borrowing rules for safety.
 
-## Types of Aliases
+### Types of Aliases
 
-### **1. Immutable Aliases (`&`)**
+#### **1. Immutable Aliases (`&`)**
 
 - Multiple immutable aliases can coexist, providing read-only access to the variable.
 
@@ -212,18 +265,19 @@ Aliases in Rust are references (`&` or `&mut`) to variables, allowing multiple w
   println!("alias1: {}, alias2: {}", alias1, alias2);
   ```
 
-### **2. Mutable Aliases (`&mut`)**
+#### **2. Mutable Aliases (`&mut`)**
 
 - Only one mutable alias is allowed at a time, enabling modification of the value.
 
 ```rust
-  let mut x = 10;
-  let alias = &mut x;
-  \*alias += 5;
-  println!("x: {}", x);
-
+fn main() {
+    let mut x = 10;          // Declare a mutable variable
+    let alias = &mut x;      // Create a mutable reference to x
+    *alias += 5;             // Dereference the alias and modify x
+    println!("x: {}", x);    // Output the updated value of x
+}
 ```
-### Summary Table: Aliases in Rust
+#### Aliases in Rust
 
 | **Type**           | **Allowed**        | **Access**  | **Example**           |
 |--------------------|--------------------|-------------|-----------------------|
@@ -376,7 +430,7 @@ fn main() {
 }
 ```
 
-### Comparison Table: `iter()` vs `iter_mut()` in Rust Loops
+#### `iter()` vs `iter_mut()` in Rust Loops
 
 | **Aspect**               | **`iter()`**                       | **`iter_mut()`**                    |
 | ------------------------ | ---------------------------------- | ----------------------------------- |
@@ -388,32 +442,41 @@ fn main() {
 
 ## 24. How can you optimize loops in Rust?
 
-## Optimizing Loops in Rust
+1. **Use Iterators Instead of Indexing**  
+   - Iterators eliminate bounds checks and are highly optimized.  
+   - Example: `for x in &v { println!("{}", x); }`
 
-Below are strategies to optimize loops in Rust for better performance and efficiency:
+2. **Avoid Unnecessary Heap Allocations**  
+   - Reuse buffers or preallocate memory to minimize dynamic allocations.  
+   - Example: `let mut buf = String::with_capacity(100); buf.clear();`
 
-### Optimization Strategies for Loops in Rust
+3. **Leverage `.iter()` and `.iter_mut()`**  
+   - Use `.iter()` for immutable references and `.iter_mut()` for mutable references.  
+   - Example: `for x in v.iter_mut() { *x += 1; }`
 
-| **Optimization Strategy**                       | **Explanation**                                                                                                                                              | **Example**                                                                             |
-|-------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
-| **1. Use Iterators Instead of Indexing**        | Iterators are often faster because they eliminate bounds checking and allow the compiler to optimize the iteration process.                                  | `let v = vec![1, 2, 3]; for x in &v { println!("{}", x); }`                             |
-| **2. Avoid Unnecessary Heap Allocations**       | Minimize dynamic memory allocation within the loop by reusing buffers or preallocating memory.                                                               | `let mut buffer = String::with_capacity(100); for _ in 0..10 { buffer.clear(); }`       |
-| **3. Leverage `.iter()` and `.iter_mut()`**     | Using `.iter()` for immutable references and `.iter_mut()` for mutable references is safer and often faster than directly indexing collections.              | `let mut v = vec![1, 2, 3]; for x in v.iter_mut() { *x += 1; }`                         |
-| **4. Use Ranges for Simple Numeric Iterations** | Ranges (`0..n`) are optimized and more idiomatic for numeric loops compared to manually managing counters in a `while` loop.                                 | `for i in 0..10 { println!("{}", i); }`                                                |
-| **5. Reduce Work Inside the Loop**              | Avoid expensive computations, function calls, or repeated operations inside the loop. Precompute values outside the loop when possible.                      | `let multiplier = 2; for i in 0..10 { let result = i * multiplier; }`                  |
-| **6. Use `for_each` or Parallel Iterators**     | When appropriate, consider using higher-order functions like `.for_each()` or parallel iterators (`rayon`) for better readability and potential concurrency. | `use rayon::prelude::*; v.par_iter().for_each(|x| println!("{}", x));`                 |
-| **7. Minimize Mutable Borrow Scope**            | Keep mutable borrows as short as possible to improve safety and avoid unnecessary constraints on optimization.                                               | `let mut v = vec![1, 2, 3]; for i in &mut v { *i += 1; }`                               |
-| **8. Use `unsafe` for Critical Paths**          | For performance-critical code, consider `unsafe` blocks to eliminate bounds checking, but use cautiously as it can lead to undefined behavior if misused.    | `unsafe { let x = *vec.get_unchecked(0); }`                                            |
-| **9. Unroll Loops Manually**                    | For very small fixed-size loops, manually unrolling them can reduce overhead by eliminating loop control logic.                                              | `let mut sum = 0; sum += v[0]; sum += v[1]; sum += v[2];`                               |
-| **10. Enable Compiler Optimizations**           | Use the `--release` flag during compilation to enable full optimizations, which can significantly improve loop performance.                                  | `cargo build --release`                                                                |
-| **11. Use Inline Functions**                    | Inline small, frequently called functions within loops to reduce the overhead of function calls.                                                             | `#[inline] fn add(a: i32, b: i32) -> i32 { a + b }`                                     |
-| **12. Avoid Mutable Aliases**                   | Avoid creating multiple mutable references to the same data, as it can prevent the compiler from optimizing effectively.                                     | `for x in v.iter_mut() { *x += 1; }`                                                   |
-| **13. Use SIMD Operations**                     | Leverage SIMD (Single Instruction Multiple Data) with crates like `packed_simd` for numeric computations over large datasets.                                | `let sum: i32 = data.iter().sum();`                                                    |
+4. **Use Ranges for Numeric Iteration**  
+   - Ranges (`0..n`) are concise, idiomatic, and optimized.  
+   - Example: `for i in 0..10 { println!("{}", i); }`
 
+5. **Reduce Work Inside the Loop**  
+   - Precompute expensive operations outside the loop.  
+   - Example: `let multiplier = 2; for i in 0..10 { let result = i * multiplier; }`
 
-### Example of Optimized Loop
+6. **Enable Compiler Optimizations**  
+   - Compile with the `--release` flag for maximum performance.  
+   - Example: `cargo build --release`
 
-Here’s an example that applies several of the above techniques:
+7. **Use Parallel Iterators (Optional)**  
+   - For large datasets, use libraries like `rayon` for parallelism.  
+   - Example: `v.par_iter().for_each(|x| println!("{}", x));`
+
+### Summary:
+- Prioritize **iterators** over manual indexing.  
+- Minimize allocations and computation **inside the loop**.  
+- Use compiler optimizations with `--release`.  
+- For large data, consider **parallel processing**.  
+
+These are the most effective strategies to ensure efficient and safe loops in Rust.
 
 ```rust
 fn main() {
@@ -433,19 +496,15 @@ fn main() {
 - Use a `for` loop for structured iteration (e.g., collections, ranges).
 - Use a `while` loop for dynamic or unpredictable conditions.
 
-| **Aspect**                 | **`for` Loop**                                                                 | **`while` Loop**                                                              |
-| -------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
-| **Purpose**                | Used for iterating over a range, collection, or iterator.                      | General-purpose loop with a condition for continuation.                       |
-| **Syntax Simplicity**      | Concise and idiomatic for iteration.                                           | Requires explicit condition and often additional variables for control.       |
-| **Use Case**               | Ideal for iterating over collections, ranges, or predefined data.              | Suitable for loops with dynamic conditions or when breaking based on logic.   |
-| **Memory Safety**          | Automatically handles bounds checking and borrowing rules.                     | May require manual bounds checking and indexing, increasing error risk.       |
-| **Iteration Overhead**     | Utilizes highly optimized iterators for minimal overhead.                      | Can incur additional overhead, especially when managing indices manually.     |
-| **Bounds Checking**        | Compiler can often optimize away bounds checks for collections.                | Manual bounds checking is needed for indexed iteration.                       |
-| **Code Readability**       | Cleaner and easier to understand for standard iterations.                      | More verbose and error-prone for iterative tasks.                             |
-| **Performance**            | Typically equal or better due to iterator optimizations.                       | May perform slightly worse if manual indexing or complex conditions are used. |
-| **Example**                | `for i in 0..10 { println!("{}", i); }`                                        | `let mut i = 0; while i < 10 { println!("{}", i); i += 1; }`                  |
-| **Error-Prone Situations** | Minimizes risk of out-of-bounds access or infinite loops.                      | Higher risk of out-of-bounds access or logic errors in custom conditions.     |
-| **Compiler Optimizations** | Iterators enable better compile-time optimizations like unrolling or inlining. | Harder for the compiler to optimize due to manual conditions.                 |
+| **Aspect**              | **`for` Loop**                                  | **`while` Loop**                               |
+|-------------------------|------------------------------------------------|-----------------------------------------------|
+| **Purpose**             | Iterates over ranges, collections, or iterators.| General-purpose with custom conditions.       |
+| **Simplicity**          | Concise and idiomatic for iteration.            | Requires explicit control and variables.      |
+| **Safety**              | Auto handles bounds and borrowing rules.        | May require manual bounds checking.           |
+| **Overhead**            | Optimized iterators minimize overhead.          | Can add overhead with manual index handling.  |
+| **Performance**         | Often faster due to iterator optimizations.     | Slightly slower with manual indexing.         |
+| **Error Risk**          | Less prone to infinite loops or bounds errors.  | Higher risk with complex conditions.          |
+| **Example**             | `for i in 0..10 { println!("{}", i); }`         | `let mut i = 0; while i < 10 { i += 1; }`     |
 
 ## 26. True/False: Rust variables are immutable by default.
 
