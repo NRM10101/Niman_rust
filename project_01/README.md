@@ -183,7 +183,7 @@ In Rust, variables can be stored in either the stack or the heap, depending on t
 
 Closures in Rust are anonymous functions that can capture variables from their surrounding environment. They are flexible and powerful but follow specific rules when interacting with variables.
 
-# Summary Table: How Variables Interact with Closures in Rust
+### Summary Table: How Variables Interact with Closures in Rust
 
 | **Capture Method**       | **How It Works**                                   | **When Used**                                 | **Example**                              |
 |--------------------------|---------------------------------------------------|----------------------------------------------|------------------------------------------|
@@ -223,7 +223,7 @@ Aliases in Rust are references (`&` or `&mut`) to variables, allowing multiple w
   println!("x: {}", x);
 
 ```
-# Summary Table: Aliases in Rust
+### Summary Table: Aliases in Rust
 
 | **Type**           | **Allowed**        | **Access**  | **Example**           |
 |--------------------|--------------------|-------------|-----------------------|
@@ -376,7 +376,7 @@ fn main() {
 }
 ```
 
-# Comparison Table: `iter()` vs `iter_mut()` in Rust Loops
+### Comparison Table: `iter()` vs `iter_mut()` in Rust Loops
 
 | **Aspect**               | **`iter()`**                       | **`iter_mut()`**                    |
 | ------------------------ | ---------------------------------- | ----------------------------------- |
@@ -392,23 +392,24 @@ fn main() {
 
 Below are strategies to optimize loops in Rust for better performance and efficiency:
 
-| **Optimization Strategy**                       | **Explanation**                                                                                                                                              | **Example**                                                                             |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- | --- | ----------------------- |
-| **1. Use Iterators Instead of Indexing**        | Iterators are often faster because they eliminate bounds checking and allow the compiler to optimize the iteration process.                                  | `rust let v = vec![1, 2, 3]; for x in &v { println!("{}", x); } `                       |
-| **2. Avoid Unnecessary Heap Allocations**       | Minimize dynamic memory allocation within the loop by reusing buffers or preallocating memory.                                                               | `rust let mut buffer = String::with_capacity(100); for _ in 0..10 { buffer.clear(); } ` |
-| **3. Leverage `.iter()` and `.iter_mut()`**     | Using `.iter()` for immutable references and `.iter_mut()` for mutable references is safer and often faster than directly indexing collections.              | `rust let mut v = vec![1, 2, 3]; for x in v.iter_mut() { *x += 1; } `                   |
-| **4. Use Ranges for Simple Numeric Iterations** | Ranges (`0..n`) are optimized and more idiomatic for numeric loops compared to manually managing counters in a `while` loop.                                 | `rust for i in 0..10 { println!("{}", i); } `                                           |
-| **5. Reduce Work Inside the Loop**              | Avoid expensive computations, function calls, or repeated operations inside the loop. Precompute values outside the loop when possible.                      | `rust let multiplier = 2; for i in 0..10 { let result = i * multiplier; } `             |
-| **6. Use `for_each` or Parallel Iterators**     | When appropriate, consider using higher-order functions like `.for_each()` or parallel iterators (`rayon`) for better readability and potential concurrency. | ```rust use rayon::prelude::\*; v.par_iter().for_each(                                  | x   | println!("{}", x)); ``` |
-| **7. Minimize Mutable Borrow Scope**            | Keep mutable borrows as short as possible to improve safety and avoid unnecessary constraints on optimization.                                               | `rust let mut v = vec![1, 2, 3]; for i in &mut v { *i += 1; } `                         |
-| **8. Use `unsafe` for Critical Paths**          | For performance-critical code, consider `unsafe` blocks to eliminate bounds checking, but use cautiously as it can lead to undefined behavior if misused.    | `rust unsafe { let x = *vec.get_unchecked(0); } `                                       |
-| **9. Unroll Loops Manually**                    | For very small fixed-size loops, manually unrolling them can reduce overhead by eliminating loop control logic.                                              | `rust let mut sum = 0; sum += v[0]; sum += v[1]; sum += v[2]; `                         |
-| **10. Enable Compiler Optimizations**           | Use the `--release` flag during compilation to enable full optimizations, which can significantly improve loop performance.                                  | `bash cargo build --release `                                                           |
-| **11. Use Inline Functions**                    | Inline small, frequently called functions within loops to reduce the overhead of function calls.                                                             | `rust #[inline] fn add(a: i32, b: i32) -> i32 { a + b } `                               |
-| **12. Avoid Mutable Aliases**                   | Avoid creating multiple mutable references to the same data, as it can prevent the compiler from optimizing effectively.                                     | `rust for x in v.iter_mut() { *x += 1; } `                                              |
-| **13. Use SIMD Operations**                     | Leverage SIMD (Single Instruction Multiple Data) with crates like `packed_simd` for numeric computations over large datasets.                                | `rust let sum: i32 = data.iter().sum(); `                                               |
+### Optimization Strategies for Loops in Rust
 
----
+| **Optimization Strategy**                       | **Explanation**                                                                                                                                              | **Example**                                                                             |
+|-------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
+| **1. Use Iterators Instead of Indexing**        | Iterators are often faster because they eliminate bounds checking and allow the compiler to optimize the iteration process.                                  | `let v = vec![1, 2, 3]; for x in &v { println!("{}", x); }`                             |
+| **2. Avoid Unnecessary Heap Allocations**       | Minimize dynamic memory allocation within the loop by reusing buffers or preallocating memory.                                                               | `let mut buffer = String::with_capacity(100); for _ in 0..10 { buffer.clear(); }`       |
+| **3. Leverage `.iter()` and `.iter_mut()`**     | Using `.iter()` for immutable references and `.iter_mut()` for mutable references is safer and often faster than directly indexing collections.              | `let mut v = vec![1, 2, 3]; for x in v.iter_mut() { *x += 1; }`                         |
+| **4. Use Ranges for Simple Numeric Iterations** | Ranges (`0..n`) are optimized and more idiomatic for numeric loops compared to manually managing counters in a `while` loop.                                 | `for i in 0..10 { println!("{}", i); }`                                                |
+| **5. Reduce Work Inside the Loop**              | Avoid expensive computations, function calls, or repeated operations inside the loop. Precompute values outside the loop when possible.                      | `let multiplier = 2; for i in 0..10 { let result = i * multiplier; }`                  |
+| **6. Use `for_each` or Parallel Iterators**     | When appropriate, consider using higher-order functions like `.for_each()` or parallel iterators (`rayon`) for better readability and potential concurrency. | `use rayon::prelude::*; v.par_iter().for_each(|x| println!("{}", x));`                 |
+| **7. Minimize Mutable Borrow Scope**            | Keep mutable borrows as short as possible to improve safety and avoid unnecessary constraints on optimization.                                               | `let mut v = vec![1, 2, 3]; for i in &mut v { *i += 1; }`                               |
+| **8. Use `unsafe` for Critical Paths**          | For performance-critical code, consider `unsafe` blocks to eliminate bounds checking, but use cautiously as it can lead to undefined behavior if misused.    | `unsafe { let x = *vec.get_unchecked(0); }`                                            |
+| **9. Unroll Loops Manually**                    | For very small fixed-size loops, manually unrolling them can reduce overhead by eliminating loop control logic.                                              | `let mut sum = 0; sum += v[0]; sum += v[1]; sum += v[2];`                               |
+| **10. Enable Compiler Optimizations**           | Use the `--release` flag during compilation to enable full optimizations, which can significantly improve loop performance.                                  | `cargo build --release`                                                                |
+| **11. Use Inline Functions**                    | Inline small, frequently called functions within loops to reduce the overhead of function calls.                                                             | `#[inline] fn add(a: i32, b: i32) -> i32 { a + b }`                                     |
+| **12. Avoid Mutable Aliases**                   | Avoid creating multiple mutable references to the same data, as it can prevent the compiler from optimizing effectively.                                     | `for x in v.iter_mut() { *x += 1; }`                                                   |
+| **13. Use SIMD Operations**                     | Leverage SIMD (Single Instruction Multiple Data) with crates like `packed_simd` for numeric computations over large datasets.                                | `let sum: i32 = data.iter().sum();`                                                    |
+
 
 ### Example of Optimized Loop
 
@@ -448,7 +449,7 @@ fn main() {
 
 ## 26. True/False: Rust variables are immutable by default.
 
-**Answer**: True
+- True
 
 ## 27. Rust program declaring a mutable variable:
 
